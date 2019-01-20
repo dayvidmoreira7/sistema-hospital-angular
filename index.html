@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html ng-app="tabelaHospital">
+<head>
+	<meta charset="UTF-8">
+	<title>Registros do Hospital</title>
+	<style>
+		.jumbotron {
+			text-align: center;
+			width: 60%;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		.form-control {
+			margin-bottom: 5px;
+		}
+		.selecionado {
+			background-color: yellow;
+			font-weight: bold;
+		}
+	</style>
+	<link rel="stylesheet" type="text/css" href="lib/bootstrap/css/bootstrap.css">
+	<script src="lib/angular/angular.js"></script>
+	<script>
+		angular.module("tabelaHospital", []);
+		angular.module("tabelaHospital").controller("tHController", function ($scope) {
+			$scope.nomeTabela = "Registros do Hospital";
+			$scope.registros = [
+				// {nome: 'Dayvid Moreira', idade: '19', problema: {nome: 'Enxaqueca', tipo: 'Dor de Cabeça'}},
+				// {nome: 'Bruna dos Reis', idade: '19', problema: {nome: 'Sinusite', tipo: 'Dor de Cabeça'}}
+			];
+			$scope.problemas = [
+				{nome: "Enxaqueca", tipo: "Dor de Cabeça"},
+				{nome: "Sinusite", tipo: "Dor de Cabeça"},
+				{nome: "Tensão", tipo: "Dor de Cabeça"},
+				{nome: "Cefaleia", tipo: "Dor de Cabeça"},
+				{nome: "Torcicolo", tipo: "Dor na Coluna"},
+				{nome: "Dor nas costas", tipo: "Dor na Coluna"},
+				{nome: "Lombalgia", tipo: "Dor na Coluna"},
+				{nome: "Gastrite", tipo: "Dor no Estômago"},
+				{nome: "Úlcera", tipo: "Dor no Estômago"}
+			]
+			$scope.adicionarRegistro = function(registro) {
+				$scope.registros.push(registro);
+				delete $scope.registro;
+			};
+			$scope.removerRegistro = function(registros) {
+				$scope.registros = registros.filter(function(registro) {
+					if(!registro.selecionado) return registro;
+				});
+			};
+			$scope.isRegistroSelecionado = function(registros) {
+				return registros.some(function(registro) {
+					return registro.selecionado;
+				});
+			};
+		});
+	</script>
+</head>
+<body ng-controller="tHController">
+	<div class="jumbotron">
+		<h3>{{nomeTabela}}</h3>
+		<input ng-hide="!registros.length > 0" ng-model="searchText" class="form-control" placeholder="Buscar">
+		<table ng-hide="!registros.length > 0" class="table table-bordered">
+			<tr>
+				<th></th>
+				<th>Nome</th>
+				<th>Idade</th>
+				<th>Problema</th>
+			</tr>
+			<tr ng-class="{selecionado: registro.selecionado}" ng-repeat="registro in registros | filter:searchText">
+				<td><input type="checkbox" ng-model="registro.selecionado"></td>
+				<td>{{registro.nome}}</td>
+				<td>{{registro.idade}}</td>
+				<td>{{registro.problema.nome}}</td>
+			</tr>
+		</table>
+		<hr/>
+		<form name="registroForm">
+		<input class="form-control" type="text" ng-model="registro.nome" name="nome" placeholder="Nome" ng-required="true">
+		<input class="form-control" type="text" ng-model="registro.idade" name="idade" placeholder="Idade" ng-required ="true" ng-pattern="/^\d{1,2}$/">
+		<select class="form-control" ng-model="registro.problema" name="problema" ng-options="problema.nome group by problema.tipo for problema in problemas" ng-required="true">
+			<option value="">Selecione uma Opção</option>
+		</select>
+		</form>
+		<div class="alert alert-warning" ng-show="registroForm.$invalid">Por favor, preencha os dados requisitados!</div>
+		<div class="alert alert-danger" ng-show="registroForm.idade.$error.pattern && registroForm.idade.$dirty">Apenas 1 ou 2 digitos na idade!</div>
+		<button class="btn btn-primary btn-block" ng-click="adicionarRegistro(registro)" ng-disabled="registroForm.$invalid">Adicionar Registro</button>
+		<button class="btn btn-danger btn-block" ng-click="removerRegistro(registros)" ng-disabled="!isRegistroSelecionado(registros)">Remover Registro</button>
+	</div>
+</body>
+</html>
